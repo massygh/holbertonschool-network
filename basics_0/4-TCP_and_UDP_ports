@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Display listening ports with PID and program name
+
+# Execute netstat command, filter for listening sockets, and display results
+netstat -tuln | grep 'LISTEN' | awk '{print $1, $4, $7}' | while read -r protocol local foreign program; do
+    # If IPv6 address, remove brackets
+    local=$(echo "$local" | sed 's/\[//;s/\]//')
+    # Extract port from local address
+    port=$(echo "$local" | awk -F: '{print $NF}')
+    # Get program name from PID
+    program_name=$(basename "$(readlink -f "/proc/$program/exe")")
+    # Display output
+    echo "$protocol $port $program_name"
+done
